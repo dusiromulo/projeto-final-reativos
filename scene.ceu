@@ -42,6 +42,8 @@ _TTF_Init();
 native do
     SDL_Texture *TEX_FLOOR, *TEX_CHARACTER_LEFT, *TEX_CHARACTER_RIGHT, *TEX_DOOR;
     TTF_Font *font;
+    FILE *fileRooms;
+    char line[100];
 end
     finalize
         _TEX_FLOOR = _IMG_LoadTexture(_REN, "floor.png");
@@ -69,6 +71,11 @@ end
         _font = _TTF_OpenFont("OpenSans.ttf", 20);
     with
         _TTF_CloseFont(_font);
+    end
+    finalize
+        _fileRooms = _fopen("rooms.txt", "r");
+    with
+        _fclose(_fileRooms);
     end
 
 class Bambam with
@@ -132,11 +139,11 @@ do
     par do
         every key in SDL_KEYDOWN do
             if key:keysym.sym == _SDLK_LEFT then
-                r.x = r.x - stepOffset;
-                str_r.x = str_r.x - stepOffset;
-            else/if key:keysym.sym == _SDLK_RIGHT then
                 r.x = r.x + stepOffset;
                 str_r.x = str_r.x + stepOffset;
+            else/if key:keysym.sym == _SDLK_RIGHT then
+                r.x = r.x - stepOffset;
+                str_r.x = str_r.x - stepOffset;
             end
         end
     with
@@ -159,11 +166,33 @@ with
         _SDL_RenderCopy(_REN, _TEX_FLOOR, null, &&rect_floor);
     end
 with 
-    var Door door with
+    pool Door[] doors;
+
+    var int doorOffset = 0;
+
+    loop do
+        if _fgets(_line, _sizeof(_line), _fileRooms) then
+            _printf("%s\n", _line);
+            spawn Door in doors with
+                this.ren = &_ID(_REN);
+                this.r = _SDL_Rect(0 + doorOffset, 168, 116, 300);
+                this.name = _line;
+            end;
+            doorOffset = doorOffset + 200;
+        else
+            break;
+        end
+    end
+
+    /*every v in A do
+        fwrite(&v, ..., f);
+    end*/
+
+    /*spawn Door in doors with
         this.ren = &_ID(_REN);
         this.r = _SDL_Rect(0, 168, 116, 300);
         this.name = "Breno";
-    end;
+    end;*/
 
     var Bambam bambam with
         this.ren = &_ID(_REN);
