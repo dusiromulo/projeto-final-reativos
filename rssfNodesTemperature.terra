@@ -1,0 +1,135 @@
+#include "/home/terra/TerraNG/terra/TerraNet.defs"
+
+#define MSG_TYPE_SETUP 0
+#define MSG_SETUP_NODE 1
+#define MSG_REQ_TEMP 2
+#define MSG_SEND_TEMP 3
+
+pktype myMsg from radioMsg with
+	var ubyte[4] d8;
+	var ushort[4] d16;
+	var ulong[2]  d32;
+end
+
+var ushort thisParent = 0;
+var ushort temperatureControl = 0;
+var ushort thisID = getNodeId();
+
+var ushort hasRequest = 0;
+var ushort parentControl = 0;
+var ushort childsSize;
+var ushort[4] childs;
+var ushort[4] childsTemps;
+
+if thisID == 11 then
+	thisParent = 1;
+else
+	var myMsg receivedSetupMsg;
+	receivedSetupMsg = await RECEIVE(MSG_TYPE_SETUP);
+	thisParent = receivedSetupMsg.source;
+end
+
+var myMsg sendSetupMsg;
+sendSetupMsg.type = MSG_TYPE_SETUP;
+sendSetupMsg.target = BROADCAST;
+sendSetupMsg.source = thisID;
+
+emit SEND(sendSetupMsg);
+await SEND_DONE;
+
+par do 
+	// recebe mensagem de configuracao
+	loop do
+		var myMsg receivedSetupMsg;
+		receivedSetupMsg = await RECEIVE(MSG_SETUP_NODE);
+		if thisID == receivedSetupMsg.d8[0] then
+			// guardar valor dos filhos
+			emit LED0(TOGGLE);
+			temperatureControl = 1;
+			childsSize = receivedSetupMsg.d8[1];
+			
+			childs[0] = receivedSetupMsg.d16[0];
+			childs[1] = receivedSetupMsg.d16[1];
+			childs[2] = receivedSetupMsg.d16[2];
+			childs[3] = receivedSetupMsg.d16[3];
+			
+			loop childIndex, childsSize do
+				receivedSetupMsg.d32[0] = thisID;
+				receivedSetupMsg.target = childs[childIndex];
+				
+				emit SEND(receivedSetupMsg);
+				await SEND_DONE;
+			end
+		else/if receivedSetupMsg.d32[0] != 0 then
+			parentControl = receivedSetupMsg.d32[0];
+			emit LED0(TOGGLE);
+		else
+			// passa adiante
+			emit SEND(receivedSetupMsg);
+			await SEND_DONE;
+		end
+	end
+with
+	// recebe mensagem de requisição
+	loop do
+		var myMsg receivedRequestTemp;
+		receivedRequestTemp = await RECEIVE(MSG_REQ_TEMP);
+		if receivedRequestTemp.source == thisID then
+			// já é o pai requisitando pro filho
+			var myMsg receivedSendTemp;
+			receivedSendTemp.type = MSG_SEND_TEMP;
+			receivedSendTemp.target = parentControl;
+			
+			emit REQ_TEMP();
+			receivedSendTemp.d16[0] = await TEMP;
+			
+			emit SEND(receivedSendTemp);
+			await SEND_DONE;
+		else/if thisID == receivedRequestTemp.d8[0] then
+			// se requisitou pro pai
+			loop childIndex, childsSize do
+				// enviar msg de req de temp para cada um dos filhos
+				
+				var myMsg msgReqTemp;
+				msgReqTemp.type = MSG_REQ_TEMP;
+				msgReqTemp.source = thisID;
+				msgReqTemp.target = childs[childIndex];
+
+				emit SEND(msgReqTemp);
+				await SEND_DONE;	
+				
+				var myMsg msgSendTemp = await RECEIVE(MSG_SEND_TEMP);
+				childsTemps[childIndex] = msgSendTemp.d16[0];
+			end
+			
+			hasRequest = 1;		
+		else
+			// passa adiante
+			emit SEND(receivedRequestTemp);
+			await SEND_DONE;
+		end
+	end
+with
+	loop do
+		if hasRequest != 0 then
+			emit REQ_TEMP();
+			var ushort totalTemp = await TEMP;
+	
+			loop childIndex, childsSize do
+				totalTemp = totalTemp + childsTemps[childIndex];
+				inc childIndex;
+			end
+			
+			var myMsg receivedSendTemp;
+			receivedSendTemp.type = MSG_SEND_TEMP;
+			receivedSendTemp.target = thisParent;
+			receivedSendTemp.source = thisID;
+			receivedSendTemp.d16[0] = totalTemp/(childsSize+1);
+			emit SEND(receivedSendTemp);
+			await SEND_DONE;
+			hasRequest = 0;
+		end
+		await 100ms;
+	end
+end
+
