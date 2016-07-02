@@ -1,0 +1,89 @@
+#define TO_LEFT -1
+#define TO_RIGHT -2
+
+input void SDL_REDRAW;
+input _SDL_KeyboardEvent&& SDL_KEYDOWN;
+
+class Bambam with
+    var _SDL_Renderer& ren;
+    pool Door[]& doors;
+do
+    var _SDL_Rect rect_floor = _SDL_Rect(0, 0, 1024, 768);
+    var _SDL_Rect r = _SDL_Rect(487, 608, 49, 121);
+    var int flip = 0;
+    var int direction = TO_RIGHT;
+    
+    par do
+        every key in SDL_KEYDOWN do
+            if key:keysym.sym == _SDLK_UP then
+                if r.y > 347 then
+                    r.y = r.y - 5;
+                end
+            else/if key:keysym.sym == _SDLK_DOWN then
+                if r.y < 647 then
+                    r.y = r.y + 5;
+                end
+            else/if key:keysym.sym == _SDLK_LEFT then
+                if direction == TO_RIGHT then
+                    flip = 1;
+                    direction = TO_LEFT;
+                end
+            else/if key:keysym.sym == _SDLK_RIGHT then
+                if direction == TO_LEFT then
+                    flip = 1;
+                    direction = TO_RIGHT;
+                end
+            end
+        end
+    with
+        loop do
+            if r.y < 347 then
+                loop door in doors do
+                    if door:r.x <= r.x and
+                        door:r.x + door:r.w >= r.x + r.w then
+                        r.y = r.y + 200;
+                        
+                        if door:state == IN then
+                            door:nextState = OUT;
+                            door:applyTextChanges = 1;
+
+                            loop doorAux in doors do
+                                if doorAux != door then
+                                    doorAux:state = OUT;
+                                end
+                            end
+
+                        else/if door:state == OUT then
+                            door:nextState = IN;
+                            door:applyTextChanges = 1;
+
+                            var int offsetDoors = door:r.x - 512 + (door:r.w/2);
+                            
+                            loop doorAux in doors do
+                                doorAux:r.x = doorAux:r.x - offsetDoors;
+                                if doorAux != door then
+                                    doorAux:roomNumberRect.x = doorAux:roomNumberRect.x - offsetDoors;
+                                    doorAux:teacherNameRect.x = doorAux:teacherNameRect.x - offsetDoors;
+                                    doorAux:state = INVISIBLE;
+                                end
+                            end
+                        end
+
+                        break;                      
+                    end
+                end
+                r.y = r.y + 5;
+            end
+            await 20ms;
+        end
+    with
+        every SDL_REDRAW do
+            _SDL_RenderCopy(_REN, _TEX_FLOOR, null, &&rect_floor);
+            if direction == TO_RIGHT then
+                _SDL_RenderCopy(&&ren, _TEX_CHARACTER_RIGHT, null, &&r);
+            else
+                _SDL_RenderCopy(&&ren, _TEX_CHARACTER_LEFT, null, &&r);
+            end
+        end
+    end
+end

@@ -1,0 +1,47 @@
+native do
+    FILE *roomsFile;
+
+    char line[300];
+    char roomNumberStr[4] = "aaaa";
+    char teacherNameStr[20] = "aaaaaaaaaaaaaaaaaaa\0";
+    int parentNode = 0;
+    int childNode1 = 0, childNode2 = 0, childNode3 = 0, childNode4 = 0;
+end
+
+finalize
+    _roomsFile = _fopen("assets/rooms.txt", "r");
+with
+    _fclose(_roomsFile);
+end
+
+class RoomParser with
+	pool Door[]& doors;
+do
+	var int doorOffset = 0;
+	loop do
+		if _fscanf(_roomsFile, "%d %d %d %d - %s - %[^\n]\n", &&_parentNode, &&_childNode1, &&_childNode2, &&_childNode3, _roomNumberStr, _teacherNameStr) > 0 then
+		
+			spawn Door in doors with
+	            this.ren = &_ID(_REN);
+	            this.r = _SDL_Rect(doorOffset, 95, 170, 373);
+	            this.roomNumberRect = _SDL_Rect(doorOffset + 70, 155, 40, 30);
+	            this.teacherNameRect = _SDL_Rect(doorOffset + 46, 175, 60, 30);
+	            this.roomNumber = _roomNumberStr;
+	            this.teacherName = _teacherNameStr;
+	            this.parentNode = _parentNode;
+	            this.childNode1 = _childNode1;
+	            this.childNode2 = _childNode2;
+	            this.childNode3 = _childNode3;
+	            this.childNode4 = _childNode4;
+
+	            this.state = OUT;
+	        end;
+
+	        doorOffset = doorOffset + 250;
+	    else
+	    	break;
+        end
+        await 10ms;
+    end
+
+end
