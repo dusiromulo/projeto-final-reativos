@@ -7,9 +7,6 @@ input void SDL_REDRAW;
 input int SDL_DT;
 input _SDL_KeyboardEvent&& SDL_KEYDOWN;
 
-#define INSIDE -1
-#define OUTSIDE -2
-
 class Scene with
     // nothing
 do
@@ -19,17 +16,20 @@ do
             _SDL_RenderFillRect(_REN, null);
         end
     with
-        var _SDL_Rect rect_floor = _SDL_Rect(0, 0, 1024, 468);
+        var _SDL_Rect rect_wall = _SDL_Rect(0, 0, 1024, 468);
 
         every SDL_REDRAW do
-            _SDL_RenderCopy(_REN, _TEX_WALL, null, &&rect_floor);
+            if _roomSelected == -1 then
+                _SDL_RenderCopy(_REN, _TEX_WALL_OUT, null, &&rect_wall);
+            else
+                _SDL_RenderCopy(_REN, _TEX_WALL_IN, null, &&rect_wall);
+            end
         end
     with 
         pool Door[] doors;
         var int tempWigetState = OFF;
 
         var RoomParser parser with
-            this.ren = &_ID(_REN);
             this.doors = &doors;
         end;
 

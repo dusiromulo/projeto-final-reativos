@@ -1,0 +1,26 @@
+native do
+	##include <unistd.h>
+	char strTest[12];
+end
+
+class MessageControl with
+
+do
+	var int i = 50;
+	_sprintf(_strTest, "pre_%d_suff", i);
+	_printf("%s\n", _strTest);
+	var int fileExists = _access("controller/breno.txt", _F_OK );
+	_printf("%d\n", fileExists);
+
+	if fileExists != -1 then
+		_printf("File exists.\n");
+	else
+		_printf("File does not exist.\n");
+	end
+
+	/*if( access( fname, F_OK ) != -1 ) {
+	    // file exists
+	} else {
+	    // file doesn't exist
+	}*/
+end

@@ -6,30 +6,36 @@
 input void SDL_REDRAW;
 
 native do
-    char teste[2] = {'0', '\0'};
-    char tempStr[39];
-    char tempStrPrefix[21] = "Temperatura média: \0";
+    char tempStr[40];
+    char descStr[60];
 end
 
 class TempWidget with
     var int state;
 do
+	var int test = 50;
 	loop do
 		if state == ON then
-			_strcpy(_tempStr, _tempStrPrefix);
-			_strcat(_tempStr, _teste);
+
+			_sprintf(_tempStr, "Temperatura média: %d", test);
 
 			var TextWidget currentText with
 				this.ren = &_ID(_REN);
 				this.content = _tempStr;
 		    	this.rect = _SDL_Rect(650,155,0,0);
+		    	this.size = 18;
 		    end;
 
-		    _teste[0] = _teste[0] + 1;
+			_sprintf(_descStr, "Sala nº %s - Prof: %s", _roomsMap[_roomSelected], _teachersMap[_roomSelected]);
 
-		    if _teste[0] > '9' then
-		    	_teste[0] = '0';
-		    end
+			var TextWidget descriptionText with
+				this.ren = &_ID(_REN);
+				this.content = _descStr;
+		    	this.rect = _SDL_Rect(650,185,0,0);
+		    	this.size = 18;
+		    end;
+
+		    test = test + 1;
 
 		    loop do
 		    	if state == OFF then

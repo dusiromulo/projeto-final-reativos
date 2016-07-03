@@ -3,6 +3,11 @@
 #define TO_LEFT -1
 #define TO_RIGHT -2
 
+native do
+    char roomNumberAux[4];
+    char teacherNameAux[20];
+end
+
 input void SDL_REDRAW;
 input _SDL_KeyboardEvent&& SDL_KEYDOWN;
 
@@ -54,12 +59,12 @@ do
                                 doorAux:state = OUT;
                             end
                             tempWidget.state = OFF;
-                            _parentNodeSelected = 0;
+                            _roomSelected = -1;
 
                         else/if door:state == OUT then
                             door:state = IN;
                             tempWidget.state = ON;
-                            _parentNodeSelected = door:parentNode;
+                            _roomSelected = door:roomIndex;
 
                             var int offsetDoors = door:r.x - 512 + (door:r.w/2);
                             

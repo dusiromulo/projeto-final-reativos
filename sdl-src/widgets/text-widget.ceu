@@ -2,17 +2,26 @@ input void SDL_REDRAW;
 
 class TextWidget with
     var _SDL_Renderer& ren;
-	var char&& content;
-	var _SDL_Rect rect;
+    var char&& content;
+    var _SDL_Rect rect;
+    var int size;
 do
-	var SDL_Color contentFontColor = SDL_Color(0x33, 0x33, 0x33, 0xFF);
-	var _SDL_Texture&? contentTexture;
+    var SDL_Color contentFontColor = SDL_Color(0x33, 0x33, 0x33, 0xFF);
+    var _SDL_Texture&? contentTexture;
     var _SDL_Surface&? contentSurface;
 
-    finalize
-        contentSurface = &_TTF_RenderUTF8_Solid(_font18, content, *(_SDL_Color&&)&&contentFontColor);
-    with
-        _SDL_FreeSurface(&&contentSurface!);
+    if size == 12 then
+        finalize
+            contentSurface = &_TTF_RenderUTF8_Solid(_font12, content, *(_SDL_Color&&)&&contentFontColor);
+        with
+            _SDL_FreeSurface(&&contentSurface!);
+        end
+    else/if size == 18 then
+        finalize
+            contentSurface = &_TTF_RenderUTF8_Solid(_font18, content, *(_SDL_Color&&)&&contentFontColor);
+        with
+            _SDL_FreeSurface(&&contentSurface!);
+        end
     end
     finalize
         contentTexture = &_SDL_CreateTextureFromSurface(&&ren, &&contentSurface!);
