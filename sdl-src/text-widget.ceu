@@ -1,0 +1,29 @@
+input void SDL_REDRAW;
+
+class TextWidget with
+    var _SDL_Renderer& ren;
+	var char&& content;
+	var _SDL_Rect rect;
+do
+	var SDL_Color contentFontColor = SDL_Color(0x33, 0x33, 0x33, 0xFF);
+	var _SDL_Texture&? contentTexture;
+    var _SDL_Surface&? contentSurface;
+
+    finalize
+        contentSurface = &_TTF_RenderUTF8_Solid(_font18, content, *(_SDL_Color&&)&&contentFontColor);
+    with
+        _SDL_FreeSurface(&&contentSurface!);
+    end
+    finalize
+        contentTexture = &_SDL_CreateTextureFromSurface(&&ren, &&contentSurface!);
+    with
+        _SDL_DestroyTexture(&&contentTexture!);
+    end
+
+    rect.w = (&&contentSurface!):w;
+    rect.h = (&&contentSurface!):h;
+
+    every SDL_REDRAW do
+        _SDL_RenderCopy(&&ren, &&contentTexture!, null, (_SDL_Rect&&)&&rect);
+    end
+end

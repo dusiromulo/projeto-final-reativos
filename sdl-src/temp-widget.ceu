@@ -1,0 +1,43 @@
+#include "text-widget.ceu"
+
+#define ON 1
+#define OFF 0
+
+input void SDL_REDRAW;
+
+native do
+    char teste[2] = {'0', '\0'};
+    char tempStr[39];
+    char tempStrPrefix[21] = "Temperatura média: \0";
+end
+
+class TempWidget with
+    var int state;
+do
+	loop do
+		if state == ON then
+			_strcpy(_tempStr, _tempStrPrefix);
+			_strcat(_tempStr, _teste);
+
+			var TextWidget currentText with
+				this.ren = &_ID(_REN);
+				this.content = _tempStr;
+		    	this.rect = _SDL_Rect(650,155,0,0);
+		    end;
+
+		    _teste[0] = _teste[0] + 1;
+
+		    if _teste[0] > '9' then
+		    	_teste[0] = '0';
+		    end
+
+		    loop do
+		    	if state == OFF then
+		    		break;
+		    	end
+		    	await 15ms;
+		    end
+		end    
+		await 10ms;
+    end
+end
