@@ -1,3 +1,5 @@
+#include "temp-widget.ceu"
+
 #define TO_LEFT -1
 #define TO_RIGHT -2
 
@@ -12,6 +14,10 @@ do
     var _SDL_Rect r = _SDL_Rect(487, 608, 49, 121);
     var int flip = 0;
     var int direction = TO_RIGHT;
+
+    var TempWidget tempWidget with
+        this.state = OFF;
+    end;
     
     par do
         every key in SDL_KEYDOWN do
@@ -44,26 +50,24 @@ do
                         r.y = r.y + 200;
                         
                         if door:state == IN then
-                            door:nextState = OUT;
-                            door:applyTextChanges = 1;
-
                             loop doorAux in doors do
-                                if doorAux != door then
-                                    doorAux:state = OUT;
-                                end
+                                doorAux:state = OUT;
                             end
+                            tempWidget.state = OFF;
+                            _parentNodeSelected = 0;
 
                         else/if door:state == OUT then
-                            door:nextState = IN;
-                            door:applyTextChanges = 1;
+                            door:state = IN;
+                            tempWidget.state = ON;
+                            _parentNodeSelected = door:parentNode;
 
                             var int offsetDoors = door:r.x - 512 + (door:r.w/2);
                             
                             loop doorAux in doors do
                                 doorAux:r.x = doorAux:r.x - offsetDoors;
+                                doorAux:roomNumberRect.x = doorAux:roomNumberRect.x - offsetDoors;
+                                doorAux:teacherNameRect.x = doorAux:teacherNameRect.x - offsetDoors;
                                 if doorAux != door then
-                                    doorAux:roomNumberRect.x = doorAux:roomNumberRect.x - offsetDoors;
-                                    doorAux:teacherNameRect.x = doorAux:teacherNameRect.x - offsetDoors;
                                     doorAux:state = INVISIBLE;
                                 end
                             end

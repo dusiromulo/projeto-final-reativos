@@ -22,12 +22,14 @@ class Door with
     var int applyTextChanges = 0;
     var int nextState = 0;
 do
+    var SDL_Color clr = SDL_Color(0x33, 0x33, 0x33, 0xFF);
+   
     var _SDL_Texture&? roomNumberTex;
     var _SDL_Texture&? teacherNameTex;
 
-    var SDL_Color clr = SDL_Color(0x33, 0x33, 0x33, 0xFF);
     var _SDL_Surface&? sfcRoomNumber;
     var _SDL_Surface&? sfcTeacherName;
+
     finalize
         sfcRoomNumber = &_TTF_RenderUTF8_Solid(_font18, roomNumber, *(_SDL_Color&&)&&clr);
     with
@@ -38,7 +40,6 @@ do
     with
         _SDL_FreeSurface(&&sfcTeacherName!);
     end
-
     finalize
         roomNumberTex = &_SDL_CreateTextureFromSurface(&&ren, &&sfcRoomNumber!);
     with
@@ -49,6 +50,11 @@ do
     with
         _SDL_DestroyTexture(&&teacherNameTex!);
     end
+
+    roomNumberRect.w = (&&sfcRoomNumber!):w;
+    teacherNameRect.w = (&&sfcTeacherName!):w;
+    roomNumberRect.h = (&&sfcRoomNumber!):h;
+    teacherNameRect.h = (&&sfcTeacherName!):h;
 
     var int stepOffset = 15;
     par do
@@ -66,36 +72,9 @@ do
             end
         end
     with
-        loop do
-            if applyTextChanges == 1 then
-                applyTextChanges = 0;
-                
-                if nextState == IN then
-                    roomNumberRect.x = 650;
-                    roomNumberRect.w = 100;
-                    teacherNameRect.x = 650;
-                    teacherNameRect.w = 100;
-                else/if nextState == OUT then
-                    roomNumberRect = _SDL_Rect(r.x + 70, 155, 40, 30);
-                    teacherNameRect = _SDL_Rect(r.x + 46, 175, 60, 30);
-                end
-
-                state = nextState;
-                nextState = 0;
-            end
-            await 20ms;
-        end
-    with
         every SDL_REDRAW do
-            roomNumberRect.w = (&&sfcRoomNumber!):w;
-            teacherNameRect.w = (&&sfcTeacherName!):w;
-            roomNumberRect.h = (&&sfcRoomNumber!):h;
-            teacherNameRect.h = (&&sfcTeacherName!):h;
-
             if state == IN then
                 _SDL_RenderCopy(&&ren, _TEX_DOOR_FLIP, null, &&r);
-                _SDL_RenderCopy(&&ren, &&roomNumberTex!, null, (_SDL_Rect&&)&&roomNumberRect);
-                _SDL_RenderCopy(&&ren, &&teacherNameTex!, null, (_SDL_Rect&&)&&teacherNameRect);
             else/if state == OUT then
                 _SDL_RenderCopy(&&ren, _TEX_DOOR, null, &&r);
                 _SDL_RenderCopy(&&ren, &&roomNumberTex!, null, (_SDL_Rect&&)&&roomNumberRect);

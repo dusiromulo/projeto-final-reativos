@@ -15,6 +15,7 @@ with
 end
 
 class RoomParser with
+    var _SDL_Renderer& ren;
 	pool Door[]& doors;
 do
 	var int doorOffset = 0;
@@ -39,7 +40,7 @@ do
 
 	        doorOffset = doorOffset + 250;
 	    else
-	    	break;
+	    	await 10s;
         end
         await 10ms;
     end

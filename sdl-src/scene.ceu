@@ -47,49 +47,52 @@ native do
                 *TEX_CHARACTER_LEFT, *TEX_CHARACTER_RIGHT,
                 *TEX_DOOR, *TEX_DOOR_FLIP;
     TTF_Font *font12, *font18;
+    int tempWidgetState = 0;
+    int parentNodeSelected = 0;
 end
-    finalize
-        _TEX_FLOOR = _IMG_LoadTexture(_REN, "assets/images/floor.png");
-    with
-        _SDL_DestroyTexture(_TEX_FLOOR);
-    end
-    finalize
-        _TEX_DOOR = _IMG_LoadTexture(_REN, "assets/images/door.png");
-    with
-        _SDL_DestroyTexture(_TEX_DOOR);
-    end
-    finalize
-        _TEX_DOOR_FLIP = _IMG_LoadTexture(_REN, "assets/images/door_flip.png");
-    with
-        _SDL_DestroyTexture(_TEX_DOOR_FLIP);
-    end
-    finalize
-        _TEX_WALL = _IMG_LoadTexture(_REN, "assets/images/wall.png");
-    with
-        _SDL_DestroyTexture(_TEX_WALL);
-    end
 
-    finalize
-        _TEX_CHARACTER_LEFT = _IMG_LoadTexture(_REN, "assets/images/char_l.png");
-    with
-        _SDL_DestroyTexture(_TEX_CHARACTER_LEFT);
-    end
-    finalize
-        _TEX_CHARACTER_RIGHT = _IMG_LoadTexture(_REN, "assets/images/char_r.png");
-    with
-        _SDL_DestroyTexture(_TEX_CHARACTER_RIGHT);
-    end
+finalize
+    _TEX_FLOOR = _IMG_LoadTexture(_REN, "assets/images/floor.png");
+with
+    _SDL_DestroyTexture(_TEX_FLOOR);
+end
+finalize
+    _TEX_DOOR = _IMG_LoadTexture(_REN, "assets/images/door.png");
+with
+    _SDL_DestroyTexture(_TEX_DOOR);
+end
+finalize
+    _TEX_DOOR_FLIP = _IMG_LoadTexture(_REN, "assets/images/door_flip.png");
+with
+    _SDL_DestroyTexture(_TEX_DOOR_FLIP);
+end
+finalize
+    _TEX_WALL = _IMG_LoadTexture(_REN, "assets/images/wall.png");
+with
+    _SDL_DestroyTexture(_TEX_WALL);
+end
 
-    finalize
-        _font12 = _TTF_OpenFont("assets/fonts/OpenSans.ttf", 12);
-    with
-        _TTF_CloseFont(_font12);
-    end
-    finalize
-        _font18 = _TTF_OpenFont("assets/fonts/OpenSans.ttf", 18);
-    with
-        _TTF_CloseFont(_font18);
-    end
+finalize
+    _TEX_CHARACTER_LEFT = _IMG_LoadTexture(_REN, "assets/images/char_l.png");
+with
+    _SDL_DestroyTexture(_TEX_CHARACTER_LEFT);
+end
+finalize
+    _TEX_CHARACTER_RIGHT = _IMG_LoadTexture(_REN, "assets/images/char_r.png");
+with
+    _SDL_DestroyTexture(_TEX_CHARACTER_RIGHT);
+end
+
+finalize
+    _font12 = _TTF_OpenFont("assets/fonts/OpenSans.ttf", 12);
+with
+    _TTF_CloseFont(_font12);
+end
+finalize
+    _font18 = _TTF_OpenFont("assets/fonts/OpenSans.ttf", 18);
+with
+    _TTF_CloseFont(_font18);
+end
     
 
 par/or do
@@ -105,11 +108,12 @@ with
     end
 with 
     pool Door[] doors;
-    var int doorOffset = 0;
+    var int tempWigetState = OFF;
 
     var RoomParser parser with
+        this.ren = &_ID(_REN);
         this.doors = &doors;
-    end;
+    end;    
 
     var Bambam bambam with
         this.ren = &_ID(_REN);
