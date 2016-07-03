@@ -51,12 +51,12 @@ do
         _SDL_DestroyTexture(&&teacherNameTex!);
     end
 
+    var int stepOffset = 15;
     roomNumberRect.w = (&&sfcRoomNumber!):w;
     teacherNameRect.w = (&&sfcTeacherName!):w;
     roomNumberRect.h = (&&sfcRoomNumber!):h;
     teacherNameRect.h = (&&sfcTeacherName!):h;
 
-    var int stepOffset = 15;
     par do
         every key in SDL_KEYDOWN do
             if state == OUT then

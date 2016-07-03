@@ -1,17 +1,9 @@
 native do
-    FILE *roomsFile;
-
     char line[300];
     char roomNumberStr[4] = "aaaa";
     char teacherNameStr[20] = "aaaaaaaaaaaaaaaaaaa\0";
     int parentNode = 0;
     int childNode1 = 0, childNode2 = 0, childNode3 = 0, childNode4 = 0;
-end
-
-finalize
-    _roomsFile = _fopen("assets/rooms.txt", "r");
-with
-    _fclose(_roomsFile);
 end
 
 class RoomParser with

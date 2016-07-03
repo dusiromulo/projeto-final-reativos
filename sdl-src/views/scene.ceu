@@ -1,0 +1,45 @@
+#include "doors.ceu"
+#include "../controller/room-parser.ceu"
+#include "bambam.ceu"
+
+input void SDL_QUIT;
+input void SDL_REDRAW;
+input int SDL_DT;
+input _SDL_KeyboardEvent&& SDL_KEYDOWN;
+
+#define INSIDE -1
+#define OUTSIDE -2
+
+class Scene with
+    // nothing
+do
+    par do
+        every SDL_REDRAW do
+            _SDL_SetRenderDrawColor(_REN, 0x11,0x00,0x00,0xFF);
+            _SDL_RenderFillRect(_REN, null);
+        end
+    with
+        var _SDL_Rect rect_floor = _SDL_Rect(0, 0, 1024, 468);
+
+        every SDL_REDRAW do
+            _SDL_RenderCopy(_REN, _TEX_WALL, null, &&rect_floor);
+        end
+    with 
+        pool Door[] doors;
+        var int tempWigetState = OFF;
+
+        var RoomParser parser with
+            this.ren = &_ID(_REN);
+            this.doors = &doors;
+        end;
+
+        var Bambam bambam with
+            this.ren = &_ID(_REN);
+            this.doors = &doors;
+        end;
+
+        every SDL_REDRAW do
+            // "application control"
+        end
+    end
+end

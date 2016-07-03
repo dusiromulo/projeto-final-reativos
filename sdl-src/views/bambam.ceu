@@ -1,4 +1,4 @@
-#include "temp-widget.ceu"
+#include "../widgets/temp-widget.ceu"
 
 #define TO_LEFT -1
 #define TO_RIGHT -2
