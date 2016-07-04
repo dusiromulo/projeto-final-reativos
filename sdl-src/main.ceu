@@ -119,7 +119,9 @@ par/or do
                     finalize
                         _requestFile = _fopen(_filenameRequest, "w");
                     with
-                        _fclose(_requestFile);
+                        if _requestFile != null then
+                            _fclose(_requestFile);
+                        end
                     end
 
                     _fprintf(_requestFile, "%d", _parentNodeMap[_roomSelected]);
@@ -129,6 +131,10 @@ par/or do
                     finalize
                         _lockFile = _fopen(_filenameLock, "w");
                     with
+                        if _access(_filenameLock, _F_OK ) != -1 then
+                            _remove(_filenameLock);
+                        end
+
                         _fclose(_lockFile);
                     end
 
