@@ -13,7 +13,7 @@ input _SDL_KeyboardEvent&& SDL_KEYDOWN;
 
 class Bambam with
     var _SDL_Renderer& ren;
-    pool Door[]& doors;
+    pool Room[]& rooms;
 do
     var _SDL_Rect rect_floor = _SDL_Rect(0, 0, 1024, 768);
     var _SDL_Rect r = _SDL_Rect(487, 608, 49, 121);
@@ -49,13 +49,13 @@ do
     with
         loop do
             if r.y < 347 then
-                loop door in doors do
+                loop door in rooms do
                     if door:r.x <= r.x and
                         door:r.x + door:r.w >= r.x + r.w then
                         r.y = r.y + 200;
                         
                         if door:state == IN then
-                            loop doorAux in doors do
+                            loop doorAux in rooms do
                                 doorAux:state = OUT;
                             end
                             tempWidget.state = OFF;
@@ -68,7 +68,7 @@ do
 
                             var int offsetDoors = door:r.x - 512 + (door:r.w/2);
                             
-                            loop doorAux in doors do
+                            loop doorAux in rooms do
                                 doorAux:r.x = doorAux:r.x - offsetDoors;
                                 doorAux:roomNumberRect.x = doorAux:roomNumberRect.x - offsetDoors;
                                 doorAux:teacherNameRect.x = doorAux:teacherNameRect.x - offsetDoors;

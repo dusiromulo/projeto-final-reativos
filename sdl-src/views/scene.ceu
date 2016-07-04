@@ -1,4 +1,4 @@
-#include "doors.ceu"
+#include "rooms.ceu"
 #include "../controller/room-parser.ceu"
 #include "bambam.ceu"
 
@@ -26,16 +26,16 @@ do
             end
         end
     with 
-        pool Door[] doors;
+        pool Room[] rooms;
         var int tempWigetState = OFF;
 
         var RoomParser parser with
-            this.doors = &doors;
+            this.rooms = &rooms;
         end;
 
         var Bambam bambam with
             this.ren = &_ID(_REN);
-            this.doors = &doors;
+            this.rooms = &rooms;
         end;
 
         every SDL_REDRAW do

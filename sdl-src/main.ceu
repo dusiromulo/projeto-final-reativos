@@ -1,7 +1,6 @@
 #include "sdl.ceu"
 #include "sdl-gfx.ceu"
 #include "views/scene.ceu"
-#include "controller/message-control.ceu"
 
 native do
     SDL_Renderer* REN = NULL;
@@ -33,16 +32,29 @@ _TTF_Init();
 	end
 
 native do
+    ##include <unistd.h>
+
 	FILE *roomsFile;
-    SDL_Texture *TEX_FLOOR, *TEX_WALL_OUT, *TEX_WALL_IN, 
-                *TEX_CHARACTER_LEFT, *TEX_CHARACTER_RIGHT,
-                *TEX_DOOR, *TEX_DOOR_FLIP;
-    TTF_Font *font12, *font18;
+
+    FILE *requestFile;
+    FILE *responseFile;
+    FILE *lockFile;
 
     char roomsMap[40][4];
     char teachersMap[40][20];
     int parentNodeMap[40];
+
     int roomSelected = -1;
+    int currentRoomTemperature = -1;
+
+    char filenameRequest[20] = "temp/request";
+    char filenameResponse[20] = "temp/response";
+    char filenameLock[20] = "temp/lock";
+
+    SDL_Texture *TEX_FLOOR, *TEX_WALL_OUT, *TEX_WALL_IN, 
+                *TEX_CHARACTER_LEFT, *TEX_CHARACTER_RIGHT,
+                *TEX_DOOR, *TEX_DOOR_FLIP;
+    TTF_Font *font12, *font18;
 end
 
 finalize
@@ -95,9 +107,66 @@ with
 end
 
 par/or do
-	var Scene scene with end;
+    loop do
+        if _roomSelected != -1 then // se está dentro de uma sala
+            if _currentRoomTemperature == -1 then // se a temp ainda nao foi recebida
 
-    var MessageControl msgControl with end;
+                var int fileLockExists = _access(_filenameLock, _F_OK );
+
+                if fileLockExists != -1 then // ja existe o arquivo
+                    _remove(_filenameLock);
+                else
+                    finalize
+                        _requestFile = _fopen(_filenameRequest, "w");
+                    with
+                        _fclose(_requestFile);
+                    end
+
+                    _fprintf(_requestFile, "%d", _parentNodeMap[_roomSelected]);
+                    _fclose(_requestFile);
+
+                    // cria lock file
+                    finalize
+                        _lockFile = _fopen(_filenameLock, "w");
+                    with
+                        _fclose(_lockFile);
+                    end
+
+                    loop do
+                        fileLockExists = _access(_filenameLock, _F_OK );
+
+                        if fileLockExists == -1 then // se nao existe o lock file
+                            finalize
+                                _responseFile = _fopen(_filenameResponse, "r");
+                            with
+                                _fclose(_responseFile);
+                            end
+
+                            if _fscanf(_responseFile, "%d", &&_currentRoomTemperature) == 1 then
+                                loop do
+                                    if _roomSelected == -1 then
+                                        _currentRoomTemperature = -1;
+                                        break;
+                                    end
+                                    await 30ms;
+                                end
+                            end
+                        end
+                        if _roomSelected == -1 then
+                            break;
+                        end
+                        await 200ms;
+                    end
+
+                end
+
+            end
+        end
+
+        await 50ms;
+    end
+with
+	var Scene scene with end;
 
     every SDL_REDRAW do
         _SDL_RenderPresent(_REN);

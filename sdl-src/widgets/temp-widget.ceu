@@ -13,11 +13,11 @@ end
 class TempWidget with
     var int state;
 do
-	var int test = 50;
+	var int lastRoomTemperature = _currentRoomTemperature;
 	loop do
 		if state == ON then
 
-			_sprintf(_tempStr, "Temperatura média: %d", test);
+			_sprintf(_tempStr, "Temperatura média: %d", _currentRoomTemperature);
 
 			var TextWidget currentText with
 				this.ren = &_ID(_REN);
@@ -35,10 +35,9 @@ do
 		    	this.size = 18;
 		    end;
 
-		    test = test + 1;
-
 		    loop do
-		    	if state == OFF then
+		    	if state == OFF or _currentRoomTemperature != lastRoomTemperature then
+		    		lastRoomTemperature = _currentRoomTemperature;
 		    		break;
 		    	end
 		    	await 15ms;

@@ -13,13 +13,14 @@ with
 end
 
 class RoomParser with
-	pool Door[]& doors;
+	pool Room[]& rooms;
 do
 	var int doorOffset = 0;
 	var int count = 0;
 	loop do
 		if _fscanf(_roomsFile, "%d %d %d %d %d - %s - %[^\n]\n", &&_parentNode, &&_childNode1, &&_childNode2, &&_childNode3, &&_childNode4, _roomNumberStr, _teacherNameStr) > 0 then
-			spawn Door in doors with
+			
+			spawn Room in rooms with
 	            this.ren = &_ID(_REN);
 	            this.r = _SDL_Rect(doorOffset, 95, 170, 373);
 	            this.roomNumberRect = _SDL_Rect(doorOffset + 70, 155, 40, 30);

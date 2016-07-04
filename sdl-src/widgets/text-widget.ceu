@@ -6,7 +6,7 @@ class TextWidget with
     var _SDL_Rect rect;
     var int size;
 do
-    var SDL_Color contentFontColor = SDL_Color(0x33, 0x33, 0x33, 0xFF);
+    var SDL_Color contentFontColor = SDL_Color(0xCC, 0xCC, 0xCC, 0xFF);
     var _SDL_Texture&? contentTexture;
     var _SDL_Surface&? contentSurface;
 

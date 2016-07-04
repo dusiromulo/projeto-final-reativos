@@ -10,7 +10,7 @@ class Room with
     var _SDL_Rect r;
     var _SDL_Rect roomNumberRect;
     var _SDL_Rect teacherNameRect;
-    var _char&& roomNumber; 
+    var char&& roomNumber; 
     var char&& teacherName;
     var int state;
 
