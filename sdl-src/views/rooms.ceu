@@ -5,7 +5,7 @@
 input void SDL_REDRAW;
 input _SDL_KeyboardEvent&& SDL_KEYDOWN;
 
-class Door with
+class Room with
     var _SDL_Renderer& ren;
     var _SDL_Rect r;
     var _SDL_Rect roomNumberRect;
